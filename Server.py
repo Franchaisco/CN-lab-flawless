@@ -35,7 +35,8 @@ def receive_client(conn, addr):
                 print("Incoming hello " + username)
                 conn.send(mes.encode("utf-8"))
             elif mes.startswith("LIST"):
-                mes = users
+                list = users.keys()
+                mes = str(list)
                 conn.send(mes.encode("utf-8"))
 
             elif mes.startswith("SEND"):
