@@ -1,7 +1,7 @@
 import socket
 import threading
 
-host_port = ("143.47.184.219", 5378)
+host_port = ("192.168.56.1", 5353)
 
 
 while True:
