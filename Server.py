@@ -33,15 +33,19 @@ def receive_client(conn, addr):
 
                 mes = "HELLO " + username
                 print("Incoming hello " + username)
+                user_dic = str(users.keys())
                 conn.send(mes.encode("utf-8"))
             elif mes.startswith("LIST"):
-                list = users.keys()
-                mes = str(list)
+                list = user_dic[9:]
+                mes = "LIST-OK " + list
                 conn.send(mes.encode("utf-8"))
-
-            elif mes.startswith("SEND"):
-                mes = "SEND-OK"
-                conn.send(mes.encode("utf-8"))
+            if mes.startswith("SEND"):
+                des_user = mes.split()[0][1:]
+                des_mes = mes.split(maxsplit=1)[1]
+                if des_user in users:
+                    conn = des_user
+                    mes = "DELIVERY" + username + ": " + des_mes
+                    conn.send(mes.encode("utf-8"))
         except KeyboardInterrupt:
             break
         except ConnectionResetError:
