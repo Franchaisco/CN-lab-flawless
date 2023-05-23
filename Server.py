@@ -32,27 +32,35 @@ def receive_client(conn, addr):
 
                 mes = "HELLO " + username
                 print("Incoming hello " + username)
-                user_dic = str(users.keys())
                 conn.send(mes.encode("utf-8"))
             elif mes.startswith("LIST"):
-                list = user_dic[9:]
+                list = ", ".join(users.keys())
                 mes = "LIST-OK " + list
                 conn.send(mes.encode("utf-8"))
             elif mes.startswith("SEND"):
                 des_user = mes.split()[1]
-                des_mes = mes.split(maxsplit=1)[2]
-                #print(des_user)
-                #"""
+                des_mes = mes.split(maxsplit=2)[2]
+            
+                if des_mes == '':
+                    mes = "BAD-RQST-BODY\n"
+                    conn.send(mes.encode("utf-8"))
+
+    
                 if des_user in users:
                     mes_user = "SEND-OK"
                     conn.send(mes_user.encode("utf-8")) 
-                    conn = des_user
-                    mes = "DELIVERY" + username + ": " + des_mes
-                    conn.send(mes.encode("utf-8"))
-                mes = "BAD-DEST-USER"
-                conn.send(mes.encode("utf-8"))
-                #"""
+                    mes = "DELIVERY\n " + username + " " + des_mes + "\n"
                     
+
+                    des_conn = users[des_user]
+                    des_conn.send(mes.encode("utf-8"))
+                else:
+                    mes = "BAD-DEST-USER\n"
+                    conn.send(mes.encode("utf-8"))
+            
+            else:
+                mes = "BAD-RQST-HDR\n"
+                conn.send(mes.encode("utf-8"))       
 
         except KeyboardInterrupt:
             break
@@ -70,6 +78,7 @@ while True:
     try:
         conn, addr = sock.accept()
         thr = threading.Thread(target=receive_client, args=(conn, addr))
+        thr.daemon = True
         thr.start()
     except KeyboardInterrupt:
         break
