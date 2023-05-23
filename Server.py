@@ -9,16 +9,18 @@ users = {}
 
 def receive_client(conn, addr):
     print("New connection! " + str(addr) + " connected")
-    
     connection = True
     while connection:
         try:
             mes = conn.recv(4096).decode("utf-8").strip()
             if not mes:
                 print("Connection lost")
+                del users[username]
                 conn.close()
+
                 break
-            elif mes.startswith("HELLO-FROM"):
+
+            if mes.startswith("HELLO-FROM"):
                 username = mes.split()[1]
 
                 # check if username is already in users, if so send in-use
@@ -65,6 +67,10 @@ def receive_client(conn, addr):
         except KeyboardInterrupt:
             break
         except ConnectionResetError:
+            print("Connection lost")
+            del users[username]
+            conn.close()
+
             break
     conn.close()
 
