@@ -39,15 +39,20 @@ def receive_client(conn, addr):
                 mes = "LIST-OK " + list
                 conn.send(mes.encode("utf-8"))
             elif mes.startswith("SEND"):
-                des_user = mes.split()[0][1:]
-                des_mes = mes.split(maxsplit=1)[1]
+                des_user = mes.split()[1]
+                des_mes = mes.split(maxsplit=1)[2]
+                #print(des_user)
+                #"""
                 if des_user in users:
+                    mes_user = "SEND-OK"
+                    conn.send(mes_user.encode("utf-8")) 
                     conn = des_user
                     mes = "DELIVERY" + username + ": " + des_mes
                     conn.send(mes.encode("utf-8"))
-                else:
-                    mes = "BAD-DEST-USER"
-                    conn.send(mes.encode("utf-8"))
+                mes = "BAD-DEST-USER"
+                conn.send(mes.encode("utf-8"))
+                #"""
+                    
 
         except KeyboardInterrupt:
             break
